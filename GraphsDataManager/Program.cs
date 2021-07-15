@@ -7,8 +7,7 @@
 
 		private static void Main ()
 		{
-			//TODO start ui here
-			//TODO endless loop here
+			UI.Start();
 		}
 	}
 }
