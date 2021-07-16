@@ -11,7 +11,7 @@ namespace GraphsDataManager
 		private const string CONVERT_COMMAND = COMMAND_ARGUMENT_PREFIX + "convert";
 
 		private Dictionary<string, Action<string[]>> CommandActionMap { get; set; }
-		
+
 		//TODO Create Command attribute to mark command methods
 		//TODO create description attribute for commands
 		//TODO create HelpClass object
@@ -27,7 +27,7 @@ namespace GraphsDataManager
 		public void Start ()
 		{
 			Console.WriteLine(WELCOME_MESSAGE);
-			
+
 			while (true)
 			{
 				string inputString = Console.ReadLine();
@@ -38,7 +38,7 @@ namespace GraphsDataManager
 					//TODO return invalid command message
 					return;
 				}
-				
+
 				CommandActionMap[commandArgument[0]].Invoke(commandArgument);
 			}
 		}
@@ -60,7 +60,7 @@ namespace GraphsDataManager
 				//TODO invalid commands arguments message
 				return;
 			}
-			
+
 			string logsPath = arguments[1];
 
 			if ((IsStringValid(logsPath) == false) || (ValidatePathToFile(logsPath) == false))
@@ -71,12 +71,13 @@ namespace GraphsDataManager
 
 			string resultsPath = arguments[2];
 
-			if (IsStringValid(logsPath) == false)
+			if (IsStringValid(resultsPath) == false)
 			{
 				//TODO invalid path to store results message
 				return;
 			}
-			
+
+			Program.ResultsMaintainer.StartConversion(logsPath, resultsPath);
 		}
 
 		private bool IsStringValid (string stringToValidate)
