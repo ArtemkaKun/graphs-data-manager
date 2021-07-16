@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace GraphsDataManager
 {
@@ -34,6 +35,7 @@ namespace GraphsDataManager
 
 				if (IsCommandArgumentsValid(commandArgument) == false)
 				{
+					//TODO return invalid command message
 					return;
 				}
 				
@@ -53,7 +55,38 @@ namespace GraphsDataManager
 
 		private void TryConvertLogsIntoResults (string[] arguments)
 		{
+			if (arguments.Length < 3)
+			{
+				//TODO invalid commands arguments message
+				return;
+			}
 			
+			string logsPath = arguments[1];
+
+			if ((IsStringValid(logsPath) == false) || (ValidatePathToFile(logsPath) == false))
+			{
+				//TODO invalig path to log message
+				return;
+			}
+
+			string resultsPath = arguments[2];
+
+			if (IsStringValid(logsPath) == false)
+			{
+				//TODO invalid path to store results message
+				return;
+			}
+			
+		}
+
+		private bool IsStringValid (string stringToValidate)
+		{
+			return (string.IsNullOrEmpty(stringToValidate) == false) && (string.IsNullOrWhiteSpace(stringToValidate) == false);
+		}
+
+		private bool ValidatePathToFile (string pathToFile)
+		{
+			return File.Exists(pathToFile);
 		}
 	}
 }
