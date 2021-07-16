@@ -21,7 +21,7 @@ namespace GraphsDataManager
 			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
 			Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
 			WriteResults(pathToStoreResult, averageFPSCollection);
-			
+
 			//TODO notify about task end
 		}
 
@@ -81,13 +81,13 @@ namespace GraphsDataManager
 
 			return averageFPSCollection;
 		}
-		
+
 		private void WriteResults (string pathToStoreResult, Queue<double> averageFPSCollection)
 		{
 			using StreamWriter writer = new(pathToStoreResult, true);
 			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
 			WriteFirstDataLine(averageFPSCollection, csv);
-			
+			WriteSecondDataLine(averageFPSCollection, csv, Path.GetFileNameWithoutExtension(pathToStoreResult));
 		}
 
 		private void WriteFirstDataLine (Queue<double> averageFPSCollection, CsvWriter csv)
@@ -112,6 +112,18 @@ namespace GraphsDataManager
 			{
 				stepNumber += 1.0d;
 				csv.WriteField(stepNumber);
+			}
+		}
+
+		private void WriteSecondDataLine (Queue<double> averageFPSCollection, CsvWriter csv, string resultsName)
+		{
+			csv.NextRecord();
+			csv.WriteField(resultsName);
+			InsertEmptyColumns(csv, 2);
+
+			while (averageFPSCollection.Count > 0)
+			{
+				csv.WriteField(averageFPSCollection.Dequeue());
 			}
 		}
 	}
