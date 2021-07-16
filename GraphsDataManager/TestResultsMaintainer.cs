@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace GraphsDataManager
 			Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
 			WriteResults(pathToStoreResult, averageFPSCollection);
 
-			//TODO notify about task end
+			Console.WriteLine("Conversion was done");
 		}
 
 		private List<LogData> ReadLogData (string pathToLog)
