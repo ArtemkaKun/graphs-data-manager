@@ -36,7 +36,7 @@ namespace GraphsDataManager
 				if (IsCommandArgumentsValid(commandArgument) == false)
 				{
 					//TODO return invalid command message
-					return;
+					continue;
 				}
 
 				CommandActionMap[commandArgument[0]].Invoke(commandArgument);
@@ -61,7 +61,7 @@ namespace GraphsDataManager
 				return;
 			}
 
-			string logsPath = arguments[1];
+			string logsPath = arguments[1].Trim('"');
 
 			if ((IsStringValid(logsPath) == false) || (ValidatePathToFile(logsPath) == false))
 			{
@@ -69,7 +69,7 @@ namespace GraphsDataManager
 				return;
 			}
 
-			string resultsPath = arguments[2];
+			string resultsPath = arguments[2].Trim('"');
 
 			if (IsStringValid(resultsPath) == false)
 			{
