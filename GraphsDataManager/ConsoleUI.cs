@@ -7,7 +7,7 @@ namespace GraphsDataManager
 	public class ConsoleUI
 	{
 		private const string WELCOME_MESSAGE = "Programm was started successfully. Waiting for user commands.";
-		private const string COMMAND_ARGUMENT_PREFIX = "--";
+		private const string COMMAND_ARGUMENT_PREFIX = "-";
 		private const string CONVERT_COMMAND = COMMAND_ARGUMENT_PREFIX + "c";
 
 		private Dictionary<string, Action<string[]>> CommandActionMap { get; set; }
