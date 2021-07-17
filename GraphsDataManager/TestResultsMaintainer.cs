@@ -77,7 +77,7 @@ namespace GraphsDataManager
 
 			while (timeSliceFrameTimesMatrix.Count > 0)
 			{
-				averageFPSCollection.Enqueue(1.0d / timeSliceFrameTimesMatrix.Dequeue().Average()); //TODO average or median?
+				averageFPSCollection.Enqueue(1000.0d / timeSliceFrameTimesMatrix.Dequeue().Average()); //TODO average or median?
 			}
 
 			return averageFPSCollection;
