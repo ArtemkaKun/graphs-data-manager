@@ -9,21 +9,50 @@ namespace GraphsDataManager
 {
 	public class TestResultsMaintainer
 	{
-		public void StartConversion (string pathToLog, string pathToStoreResult)
+		private string PathToDataDirectory { get; set; }
+		private FileInfo[] LogFilesInfo { get; set; }
+
+		public void SetPathToDataDirectory (string newPathToData, FileInfo[] logFilesInfo)
 		{
-			List<LogData> logRecords = ReadLogData(pathToLog);
-
-			if (logRecords.Count == 0)
+			PathToDataDirectory = newPathToData;
+			LogFilesInfo = logFilesInfo;
+		}
+	
+		public void StartConversion (string[] selectedFileIDs)
+		{
+			//TODO add check for data directory path and files info
+			
+			for (int selectedFileIDPointer = 0; selectedFileIDPointer < selectedFileIDs.Length; selectedFileIDPointer++)
 			{
-				//TODO empty table message
-				return;
+				string selectedIDInStringForm = selectedFileIDs[selectedFileIDPointer];
+
+				if ((int.TryParse(selectedIDInStringForm, out int selectedID) == true) && (CheckIsSelectedIDValid(selectedID) == true))
+				{
+					List<LogData> logRecords = ReadLogData(LogFilesInfo[selectedID].FullName);
+
+					if (logRecords.Count == 0)
+					{
+						//TODO empty table message
+						return;
+					}
+
+					Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
+					Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
+					WriteResults(PathToDataDirectory, averageFPSCollection);
+
+					Console.WriteLine("Conversion was done");
+				}
+				else
+				{
+					//TODO add invalid id message
+					continue;
+				}
 			}
+		}
 
-			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
-			Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
-			WriteResults(pathToStoreResult, averageFPSCollection);
-
-			Console.WriteLine("Conversion was done");
+		private bool CheckIsSelectedIDValid (int selectedID)
+		{
+			return (selectedID >= 0) && (selectedID < LogFilesInfo.Length);
 		}
 
 		private List<LogData> ReadLogData (string pathToLog)
@@ -85,10 +114,11 @@ namespace GraphsDataManager
 
 		private void WriteResults (string pathToStoreResult, Queue<double> averageFPSCollection)
 		{
-			using StreamWriter writer = new(pathToStoreResult, true);
+			string pathToResultsFile = Path.Combine(pathToStoreResult, $"convert_{DateTime.Now.ToString("dd-mm-yy")}.csv");
+			using StreamWriter writer = new(pathToResultsFile, true);
 			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
 			WriteFirstDataLine(averageFPSCollection, csv);
-			WriteSecondDataLine(averageFPSCollection, csv, Path.GetFileNameWithoutExtension(pathToStoreResult));
+			WriteSecondDataLine(averageFPSCollection, csv, pathToResultsFile);
 		}
 
 		private void WriteFirstDataLine (Queue<double> averageFPSCollection, CsvWriter csv)

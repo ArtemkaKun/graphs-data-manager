@@ -60,34 +60,22 @@ namespace GraphsDataManager
 
 		private void TryConvertLogsIntoResults (string[] arguments)
 		{
-			if (arguments.Length < 3)
+			if (arguments.Length < 2)
 			{
 				//TODO invalid commands arguments message
 				return;
 			}
 
-			string logsPath = arguments[1].Trim('"');
+			string selectedFiles = arguments[1];
 
-			if (ValidatePathToFile(logsPath) == false)
+			if (IsStringValid(selectedFiles) == false)
 			{
-				//TODO invalig path to log message
+				//TODO invalig selected files
 				return;
 			}
 
-			string resultsPath = arguments[2].Trim('"');
-
-			if (IsStringValid(resultsPath) == false)
-			{
-				//TODO invalid path to store results message
-				return;
-			}
-
-			Program.ResultsMaintainer.StartConversion(logsPath, resultsPath);
-		}
-
-		private bool ValidatePathToFile (string pathToFile)
-		{
-			return (IsStringValid(pathToFile) == true) && File.Exists(pathToFile);
+			string[] selectedFileIDs = selectedFiles.Split(",");
+			Program.ResultsMaintainer.StartConversion(selectedFileIDs);
 		}
 
 		private void TryGetDataFromFolder (string[] arguments)
@@ -97,16 +85,18 @@ namespace GraphsDataManager
 				//TODO invalid commands arguments message
 				return;
 			}
-			
+
 			string dataFolderPath = arguments[1].Trim('"');
-			
+
 			if (ValidatePathToFolder(dataFolderPath) == false)
 			{
 				//TODO invalig path to data folder message
 				return;
 			}
 
-			PrintAllLogsFilesInFolder(dataFolderPath);
+			FileInfo[] filesInfo = GetAllLogFilesInfo(dataFolderPath);
+			Program.ResultsMaintainer.SetPathToDataDirectory(dataFolderPath, filesInfo);
+			PrintAllLogsFilesInFolder(filesInfo);
 		}
 
 		private bool ValidatePathToFolder (string pathToFolder)
@@ -119,14 +109,24 @@ namespace GraphsDataManager
 			return (string.IsNullOrEmpty(stringToValidate) == false) && (string.IsNullOrWhiteSpace(stringToValidate) == false);
 		}
 
-		private void PrintAllLogsFilesInFolder (string pathToFolder)
+		private FileInfo[] GetAllLogFilesInfo (string pathToFolder)
 		{
 			string[] allLogPathsInFolder = Directory.GetFiles(pathToFolder, SEARCH_FILE_PREFIX + LOG_DATA_EXTENSION);
+			FileInfo[] filesInfo = new FileInfo[allLogPathsInFolder.Length];
 
 			for (int filePathPointer = 0; filePathPointer < allLogPathsInFolder.Length; filePathPointer++)
 			{
-				FileInfo currentLogFile = new(allLogPathsInFolder[filePathPointer]);
-				Console.WriteLine(LOG_FILES_TABLE_ROW_TEMPLATE, filePathPointer, currentLogFile.Name);
+				filesInfo[filePathPointer] = new FileInfo(allLogPathsInFolder[filePathPointer]);
+			}
+
+			return filesInfo;
+		}
+
+		private void PrintAllLogsFilesInFolder (FileInfo[] filesInfo)
+		{
+			for (int fileInfoPointer = 0; fileInfoPointer < filesInfo.Length; fileInfoPointer++)
+			{
+				Console.WriteLine(LOG_FILES_TABLE_ROW_TEMPLATE, fileInfoPointer, filesInfo[fileInfoPointer].Name);
 			}
 		}
 	}
