@@ -9,6 +9,10 @@ namespace GraphsDataManager
 		private const string WELCOME_MESSAGE = "Programm was started successfully. Waiting for user commands.";
 		private const string COMMAND_ARGUMENT_PREFIX = "-";
 		private const string CONVERT_COMMAND = COMMAND_ARGUMENT_PREFIX + "c";
+		private const string DATA_FOLDER_COMMAND = COMMAND_ARGUMENT_PREFIX + "df";
+		private const string SEARCH_FILE_PREFIX = "*.";
+		private const string LOG_DATA_EXTENSION = "csv";
+		private const string LOG_FILES_TABLE_ROW_TEMPLATE = "{0} - {1}";
 
 		private Dictionary<string, Action<string[]>> CommandActionMap { get; set; }
 
@@ -20,7 +24,8 @@ namespace GraphsDataManager
 		{
 			CommandActionMap = new Dictionary<string, Action<string[]>>
 			{
-				{CONVERT_COMMAND, TryConvertLogsIntoResults}
+				{CONVERT_COMMAND, TryConvertLogsIntoResults},
+				{DATA_FOLDER_COMMAND, TryGetDataFromFolder}
 			};
 		}
 
@@ -63,7 +68,7 @@ namespace GraphsDataManager
 
 			string logsPath = arguments[1].Trim('"');
 
-			if ((IsStringValid(logsPath) == false) || (ValidatePathToFile(logsPath) == false))
+			if (ValidatePathToFile(logsPath) == false)
 			{
 				//TODO invalig path to log message
 				return;
@@ -80,14 +85,49 @@ namespace GraphsDataManager
 			Program.ResultsMaintainer.StartConversion(logsPath, resultsPath);
 		}
 
+		private bool ValidatePathToFile (string pathToFile)
+		{
+			return (IsStringValid(pathToFile) == true) && File.Exists(pathToFile);
+		}
+
+		private void TryGetDataFromFolder (string[] arguments)
+		{
+			if (arguments.Length < 2)
+			{
+				//TODO invalid commands arguments message
+				return;
+			}
+			
+			string dataFolderPath = arguments[1].Trim('"');
+			
+			if (ValidatePathToFolder(dataFolderPath) == false)
+			{
+				//TODO invalig path to data folder message
+				return;
+			}
+
+			PrintAllLogsFilesInFolder(dataFolderPath);
+		}
+
+		private bool ValidatePathToFolder (string pathToFolder)
+		{
+			return (IsStringValid(pathToFolder) == true) && Directory.Exists(pathToFolder);
+		}
+
 		private bool IsStringValid (string stringToValidate)
 		{
 			return (string.IsNullOrEmpty(stringToValidate) == false) && (string.IsNullOrWhiteSpace(stringToValidate) == false);
 		}
 
-		private bool ValidatePathToFile (string pathToFile)
+		private void PrintAllLogsFilesInFolder (string pathToFolder)
 		{
-			return File.Exists(pathToFile);
+			string[] allLogPathsInFolder = Directory.GetFiles(pathToFolder, SEARCH_FILE_PREFIX + LOG_DATA_EXTENSION);
+
+			for (int filePathPointer = 0; filePathPointer < allLogPathsInFolder.Length; filePathPointer++)
+			{
+				FileInfo currentLogFile = new(allLogPathsInFolder[filePathPointer]);
+				Console.WriteLine(LOG_FILES_TABLE_ROW_TEMPLATE, filePathPointer, currentLogFile.Name);
+			}
 		}
 	}
 }
