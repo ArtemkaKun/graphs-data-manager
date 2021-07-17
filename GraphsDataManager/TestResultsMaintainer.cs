@@ -115,9 +115,15 @@ namespace GraphsDataManager
 		private void WriteResults (string pathToStoreResult, Queue<double> averageFPSCollection)
 		{
 			string pathToResultsFile = Path.Combine(pathToStoreResult, $"convert_{DateTime.Now.ToString("dd-MM-yy")}.csv");
+			bool isPathAlreadyExists = File.Exists(pathToResultsFile); 
 			using StreamWriter writer = new(pathToResultsFile, true);
 			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
-			WriteFirstDataLine(averageFPSCollection, csv);
+
+			if (isPathAlreadyExists == false)
+			{
+				WriteFirstDataLine(averageFPSCollection, csv);
+			}
+			
 			WriteSecondDataLine(averageFPSCollection, csv, pathToResultsFile);
 		}
 
