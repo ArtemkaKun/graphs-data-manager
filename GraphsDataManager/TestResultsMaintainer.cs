@@ -114,7 +114,7 @@ namespace GraphsDataManager
 
 		private void WriteResults (string pathToStoreResult, Queue<double> averageFPSCollection)
 		{
-			string pathToResultsFile = Path.Combine(pathToStoreResult, $"convert_{DateTime.Now.ToString("dd-mm-yy")}.csv");
+			string pathToResultsFile = Path.Combine(pathToStoreResult, $"convert_{DateTime.Now.ToString("dd-MM-yy")}.csv");
 			using StreamWriter writer = new(pathToResultsFile, true);
 			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
 			WriteFirstDataLine(averageFPSCollection, csv);
