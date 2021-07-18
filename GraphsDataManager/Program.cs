@@ -1,4 +1,6 @@
-﻿namespace GraphsDataManager
+﻿using GraphsDataManager.ConsoleSystems;
+
+namespace GraphsDataManager
 {
 	internal static class Program
 	{

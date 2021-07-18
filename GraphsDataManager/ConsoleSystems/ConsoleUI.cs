@@ -2,18 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace GraphsDataManager
+namespace GraphsDataManager.ConsoleSystems
 {
 	public class ConsoleUI
 	{
-		private const string WELCOME_MESSAGE = "Programm was started successfully. Waiting for user commands.";
-		private const string COMMAND_ARGUMENT_PREFIX = "-";
-		private const string CONVERT_COMMAND = COMMAND_ARGUMENT_PREFIX + "c";
-		private const string DATA_FOLDER_COMMAND = COMMAND_ARGUMENT_PREFIX + "df";
-		private const string SEARCH_FILE_PREFIX = "*.";
-		private const string LOG_DATA_EXTENSION = "csv";
-		private const string LOG_FILES_TABLE_ROW_TEMPLATE = "{0} - {1}";
-
 		private Dictionary<string, Action<string[]>> CommandActionMap { get; set; }
 
 		//TODO Create Command attribute to mark command methods
@@ -24,14 +16,14 @@ namespace GraphsDataManager
 		{
 			CommandActionMap = new Dictionary<string, Action<string[]>>
 			{
-				{CONVERT_COMMAND, TryConvertLogsIntoResults},
-				{DATA_FOLDER_COMMAND, TryGetDataFromFolder}
+				{ConsoleUIDatabase.CONVERT_COMMAND, TryConvertLogsIntoResults},
+				{ConsoleUIDatabase.DATA_FOLDER_COMMAND, TryGetDataFromFolder}
 			};
 		}
 
 		public void Start ()
 		{
-			Console.WriteLine(WELCOME_MESSAGE);
+			Console.WriteLine(ConsoleUIDatabase.WELCOME_MESSAGE);
 
 			while (true)
 			{
@@ -55,7 +47,7 @@ namespace GraphsDataManager
 
 		private bool IsCommandArgumentsValid (string[] arguments)
 		{
-			return (arguments.Length > 1) && arguments[0].Contains(COMMAND_ARGUMENT_PREFIX);
+			return (arguments.Length > 1) && arguments[0].Contains(ConsoleUIDatabase.COMMAND_ARGUMENT_PREFIX);
 		}
 
 		private void TryConvertLogsIntoResults (string[] arguments)
@@ -111,8 +103,8 @@ namespace GraphsDataManager
 
 		private FileInfo[] GetAllLogFilesInfo (string pathToFolder)
 		{
-			string[] allLogPathsInFolder = Directory.GetFiles(pathToFolder, SEARCH_FILE_PREFIX + LOG_DATA_EXTENSION);
-			FileInfo[] filesInfo = new FileInfo[allLogPathsInFolder.Length];
+			string[]   allLogPathsInFolder = Directory.GetFiles(pathToFolder, ConsoleUIDatabase.SEARCH_FILE_PREFIX + ConsoleUIDatabase.LOG_DATA_EXTENSION);
+			FileInfo[] filesInfo           = new FileInfo[allLogPathsInFolder.Length];
 
 			for (int filePathPointer = 0; filePathPointer < allLogPathsInFolder.Length; filePathPointer++)
 			{
@@ -126,7 +118,7 @@ namespace GraphsDataManager
 		{
 			for (int fileInfoPointer = 0; fileInfoPointer < filesInfo.Length; fileInfoPointer++)
 			{
-				Console.WriteLine(LOG_FILES_TABLE_ROW_TEMPLATE, fileInfoPointer, filesInfo[fileInfoPointer].Name);
+				Console.WriteLine(ConsoleUIDatabase.LOG_FILES_TABLE_ROW_TEMPLATE, fileInfoPointer, filesInfo[fileInfoPointer].Name);
 			}
 		}
 	}
