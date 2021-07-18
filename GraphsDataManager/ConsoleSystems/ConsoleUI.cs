@@ -6,7 +6,7 @@ namespace GraphsDataManager.ConsoleSystems
 {
 	public class ConsoleUI
 	{
-		private Dictionary<string, Action<string[]>> CommandActionMap { get; set; }
+		private Dictionary<string, Action<string[]>> CommandActionMap { get; }
 
 		//TODO Create Command attribute to mark command methods
 		//TODO create description attribute for commands
