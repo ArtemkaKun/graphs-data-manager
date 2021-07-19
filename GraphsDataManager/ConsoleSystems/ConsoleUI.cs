@@ -32,7 +32,7 @@ namespace GraphsDataManager.ConsoleSystems
 
 				if (IsCommandArgumentsValid(commandArgument) == false)
 				{
-					//TODO return invalid command message
+					Console.WriteLine(ConsoleUIDatabase.UNKNOWN_COMMAND_MESSAGE);
 					continue;
 				}
 

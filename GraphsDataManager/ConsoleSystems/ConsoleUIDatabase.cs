@@ -10,5 +10,6 @@ namespace GraphsDataManager.ConsoleSystems
 		public const string LOG_DATA_EXTENSION = "csv";
 		public const string LOG_FILES_TABLE_ROW_TEMPLATE = "{0} - {1}";
 		public const string COMMAND_ARGUMENTS_SEPARATOR = " ";
+		public const string UNKNOWN_COMMAND_MESSAGE = "Unknown command was provided";
 	}
 }
