@@ -70,7 +70,7 @@ namespace GraphsDataManager.ConsoleSystems
 		{
 			if (arguments.Length < 2)
 			{
-				//TODO invalid commands arguments message
+				Console.WriteLine(ConsoleUIDatabase.INVALID_DATA_FOLDER_COMMAND_ARGUMENTS);
 				return;
 			}
 
