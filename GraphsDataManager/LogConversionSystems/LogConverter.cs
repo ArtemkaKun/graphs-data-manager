@@ -26,8 +26,8 @@ namespace GraphsDataManager.LogConversionSystems
 				return;
 			}
 
-			string[] selectedFileIDs = selectedFiles.Split(",");
-			StartConversion(selectedFileIDs);
+			string[] selectedIDs = selectedFiles.Split(",");
+			StartConversion(selectedIDs);
 		}
 
 		private void StartConversion (string[] selectedFileIDs)
