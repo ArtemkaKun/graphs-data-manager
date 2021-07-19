@@ -24,19 +24,35 @@ namespace GraphsDataManager.ConsoleSystems
 		public void Start ()
 		{
 			Console.WriteLine(ConsoleUIDatabase.WELCOME_MESSAGE);
+			StartUILoop();
+		}
 
+		private void StartUILoop ()
+		{
 			while (true)
 			{
-				string inputString = Console.ReadLine();
-				string[] commandArgument = SplitStringOnArguments(inputString);
+				string[] commandArguments = GetProvidedCommandArguments();
+				TryInvokeProvidedCommand(commandArguments);
+			}
+		}
 
-				if (IsCommandArgumentsValid(commandArgument) == false)
-				{
-					Console.WriteLine(ConsoleUIDatabase.UNKNOWN_COMMAND_MESSAGE);
-					continue;
-				}
+		private string[] GetProvidedCommandArguments ()
+		{
+			string inputString = Console.ReadLine();
+			string[] commandArguments = SplitStringOnArguments(inputString);
 
-				CommandActionMap[commandArgument[0]].Invoke(commandArgument);
+			return commandArguments;
+		}
+
+		private void TryInvokeProvidedCommand (string[] commandArguments)
+		{
+			if (IsCommandArgumentsValid(commandArguments) == true)
+			{
+				CommandActionMap[commandArguments[0]].Invoke(commandArguments);
+			}
+			else
+			{
+				Console.WriteLine(ConsoleUIDatabase.UNKNOWN_COMMAND_MESSAGE);
 			}
 		}
 
