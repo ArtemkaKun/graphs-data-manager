@@ -4,12 +4,33 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using CsvHelper;
+using GraphsDataManager.Helpers;
 
-namespace GraphsDataManager
+namespace GraphsDataManager.LogConversionSystems
 {
-	public class TestResultsMaintainer
+	public class LogConverter
 	{
-		public void StartConversion (string[] selectedFileIDs)
+		public void TryConvertLogsIntoResults (string[] arguments)
+		{
+			if (arguments.Length < 2)
+			{
+				//TODO invalid commands arguments message
+				return;
+			}
+
+			string selectedFiles = arguments[1];
+
+			if (selectedFiles.CheckIfStringIsValid() == false)
+			{
+				//TODO invalig selected files
+				return;
+			}
+
+			string[] selectedFileIDs = selectedFiles.Split(",");
+			StartConversion(selectedFileIDs);
+		}
+
+		private void StartConversion (string[] selectedFileIDs)
 		{
 			//TODO add check for data directory path and files info
 

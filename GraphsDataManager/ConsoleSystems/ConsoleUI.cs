@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using GraphsDataManager.DataFolderSystems;
 using GraphsDataManager.Helpers;
+using GraphsDataManager.LogConversionSystems;
 
 namespace GraphsDataManager.ConsoleSystems
 {
@@ -19,7 +20,7 @@ namespace GraphsDataManager.ConsoleSystems
 			CommandActionMap = new Dictionary<string, Action<string[]>>
 			{
 				{DataFolderManagerDatabase.DATA_FOLDER_COMMAND, Program.FolderManager.TryGetDataFromFolder},
-				{ConsoleUIDatabase.CONVERT_COMMAND, TryConvertLogsIntoResults}
+				{LogConverterDatabase.CONVERT_COMMAND, Program.ResultsMaintainer.TryConvertLogsIntoResults}
 			};
 		}
 
@@ -46,6 +47,11 @@ namespace GraphsDataManager.ConsoleSystems
 			return commandArguments;
 		}
 
+		private string[] SplitStringOnArguments (string stringToSplit)
+		{
+			return stringToSplit.Split(ConsoleUIDatabase.COMMAND_ARGUMENTS_SEPARATOR);
+		}
+
 		private void TryInvokeProvidedCommand (string[] commandArguments)
 		{
 			if (IsCommandArgumentsValid(commandArguments) == true)
@@ -58,34 +64,9 @@ namespace GraphsDataManager.ConsoleSystems
 			}
 		}
 
-		private string[] SplitStringOnArguments (string stringToSplit)
-		{
-			return stringToSplit.Split(ConsoleUIDatabase.COMMAND_ARGUMENTS_SEPARATOR);
-		}
-
 		private bool IsCommandArgumentsValid (string[] arguments)
 		{
 			return (arguments.Length > 1) && arguments[0].Contains(ConsoleUIDatabase.COMMAND_ARGUMENT_PREFIX);
-		}
-
-		private void TryConvertLogsIntoResults (string[] arguments)
-		{
-			if (arguments.Length < 2)
-			{
-				//TODO invalid commands arguments message
-				return;
-			}
-
-			string selectedFiles = arguments[1];
-
-			if (selectedFiles.CheckIfStringIsValid() == false)
-			{
-				//TODO invalig selected files
-				return;
-			}
-
-			string[] selectedFileIDs = selectedFiles.Split(",");
-			Program.ResultsMaintainer.StartConversion(selectedFileIDs);
 		}
 	}
 }
