@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using GraphsDataManager.DataFolderSystems;
+using GraphsDataManager.Helpers;
 
 namespace GraphsDataManager.ConsoleSystems
 {
@@ -16,7 +18,7 @@ namespace GraphsDataManager.ConsoleSystems
 		{
 			CommandActionMap = new Dictionary<string, Action<string[]>>
 			{
-				{ConsoleUIDatabase.DATA_FOLDER_COMMAND, TryGetDataFromFolder},
+				{DataFolderManagerDatabase.DATA_FOLDER_COMMAND, Program.FolderManager.TryGetDataFromFolder},
 				{ConsoleUIDatabase.CONVERT_COMMAND, TryConvertLogsIntoResults}
 			};
 		}
@@ -66,48 +68,6 @@ namespace GraphsDataManager.ConsoleSystems
 			return (arguments.Length > 1) && arguments[0].Contains(ConsoleUIDatabase.COMMAND_ARGUMENT_PREFIX);
 		}
 
-		private void TryGetDataFromFolder (string[] arguments)
-		{
-			if (arguments.Length < 2)
-			{
-				Console.WriteLine(ConsoleUIDatabase.INVALID_DATA_FOLDER_COMMAND_ARGUMENTS);
-				return;
-			}
-
-			string dataFolderPath = arguments[1].Trim(ConsoleUIDatabase.PATH_WRAPPER_SYMBOL);
-
-			if (ValidatePathToFolder(dataFolderPath) == false)
-			{
-				Console.WriteLine(ConsoleUIDatabase.INVALID_FOLDER_PATH);
-				return;
-			}
-
-			FileInfo[] filesInfo = GetAllLogFilesInfo(dataFolderPath);
-			PrintAllLogsFilesInFolder(filesInfo);
-			Program.ResultsMaintainer.SetPathToDataDirectory(dataFolderPath, filesInfo);
-		}
-
-		private FileInfo[] GetAllLogFilesInfo (string pathToFolder)
-		{
-			string[] allLogPathsInFolder = Directory.GetFiles(pathToFolder, ConsoleUIDatabase.SEARCH_FILE_PREFIX + ConsoleUIDatabase.LOG_DATA_EXTENSION);
-			FileInfo[] filesInfo = new FileInfo[allLogPathsInFolder.Length];
-
-			for (int filePathPointer = 0; filePathPointer < allLogPathsInFolder.Length; filePathPointer++)
-			{
-				filesInfo[filePathPointer] = new FileInfo(allLogPathsInFolder[filePathPointer]);
-			}
-
-			return filesInfo;
-		}
-
-		private void PrintAllLogsFilesInFolder (FileInfo[] filesInfo)
-		{
-			for (int fileInfoPointer = 0; fileInfoPointer < filesInfo.Length; fileInfoPointer++)
-			{
-				Console.WriteLine(ConsoleUIDatabase.LOG_FILES_TABLE_ROW_TEMPLATE, fileInfoPointer, filesInfo[fileInfoPointer].Name);
-			}
-		}
-
 		private void TryConvertLogsIntoResults (string[] arguments)
 		{
 			if (arguments.Length < 2)
@@ -118,7 +78,7 @@ namespace GraphsDataManager.ConsoleSystems
 
 			string selectedFiles = arguments[1];
 
-			if (IsStringValid(selectedFiles) == false)
+			if (selectedFiles.CheckIfStringIsValid() == false)
 			{
 				//TODO invalig selected files
 				return;
@@ -126,16 +86,6 @@ namespace GraphsDataManager.ConsoleSystems
 
 			string[] selectedFileIDs = selectedFiles.Split(",");
 			Program.ResultsMaintainer.StartConversion(selectedFileIDs);
-		}
-
-		private bool ValidatePathToFolder (string pathToFolder)
-		{
-			return (IsStringValid(pathToFolder) == true) && Directory.Exists(pathToFolder);
-		}
-
-		private bool IsStringValid (string stringToValidate)
-		{
-			return (string.IsNullOrEmpty(stringToValidate) == false) && (string.IsNullOrWhiteSpace(stringToValidate) == false);
 		}
 	}
 }

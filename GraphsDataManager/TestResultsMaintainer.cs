@@ -9,50 +9,42 @@ namespace GraphsDataManager
 {
 	public class TestResultsMaintainer
 	{
-		private string PathToDataDirectory { get; set; }
-		private FileInfo[] LogFilesInfo { get; set; }
-
-		public void SetPathToDataDirectory (string newPathToData, FileInfo[] logFilesInfo)
-		{
-			PathToDataDirectory = newPathToData;
-			LogFilesInfo = logFilesInfo;
-		}
-	
 		public void StartConversion (string[] selectedFileIDs)
 		{
 			//TODO add check for data directory path and files info
-			
+
 			for (int selectedFileIDPointer = 0; selectedFileIDPointer < selectedFileIDs.Length; selectedFileIDPointer++)
 			{
 				string selectedIDInStringForm = selectedFileIDs[selectedFileIDPointer];
 
-				if ((int.TryParse(selectedIDInStringForm, out int selectedID) == true) && (CheckIsSelectedIDValid(selectedID) == true))
+				if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
 				{
-					List<LogData> logRecords = ReadLogData(LogFilesInfo[selectedID].FullName);
-
-					if (logRecords.Count == 0)
-					{
-						//TODO empty table message
-						return;
-					}
-
-					Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
-					Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
-					WriteResults(PathToDataDirectory, averageFPSCollection);
-
-					Console.WriteLine("Conversion was done");
-				}
-				else
-				{
-					//TODO add invalid id message
+					//TODO is not a number error
 					continue;
 				}
-			}
-		}
 
-		private bool CheckIsSelectedIDValid (int selectedID)
-		{
-			return (selectedID >= 0) && (selectedID < LogFilesInfo.Length);
+				string selectedLogFile = Program.FolderManager.GetLogPathByPositionIndex(selectedID);
+
+				if (Program.FolderManager.GetLogPathByPositionIndex(selectedID) == null)
+				{
+					//TODO no logs with that id
+					continue;
+				}
+
+				List<LogData> logRecords = ReadLogData(selectedLogFile);
+
+				if (logRecords.Count == 0)
+				{
+					//TODO empty table message
+					return;
+				}
+
+				Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
+				Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
+				WriteResults(Program.FolderManager.PathToDataDirectory, averageFPSCollection);
+
+				Console.WriteLine("Conversion was done");
+			}
 		}
 
 		private List<LogData> ReadLogData (string pathToLog)
@@ -115,7 +107,7 @@ namespace GraphsDataManager
 		private void WriteResults (string pathToStoreResult, Queue<double> averageFPSCollection)
 		{
 			string pathToResultsFile = Path.Combine(pathToStoreResult, $"convert_{DateTime.Now.ToString("dd-MM-yy")}.csv");
-			bool isPathAlreadyExists = File.Exists(pathToResultsFile); 
+			bool isPathAlreadyExists = File.Exists(pathToResultsFile);
 			using StreamWriter writer = new(pathToResultsFile, true);
 			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
 
@@ -123,7 +115,7 @@ namespace GraphsDataManager
 			{
 				WriteFirstDataLine(averageFPSCollection, csv);
 			}
-			
+
 			WriteSecondDataLine(averageFPSCollection, csv, pathToResultsFile);
 		}
 
