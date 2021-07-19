@@ -74,7 +74,7 @@ namespace GraphsDataManager.ConsoleSystems
 				return;
 			}
 
-			string dataFolderPath = arguments[1].Trim('"');
+			string dataFolderPath = arguments[1].Trim(ConsoleUIDatabase.PATH_WRAPPER_SYMBOL);
 
 			if (ValidatePathToFolder(dataFolderPath) == false)
 			{
