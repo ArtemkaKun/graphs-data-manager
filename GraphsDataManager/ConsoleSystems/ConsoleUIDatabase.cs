@@ -12,6 +12,7 @@ namespace GraphsDataManager.ConsoleSystems
 		public const string COMMAND_ARGUMENTS_SEPARATOR = " ";
 		public const string UNKNOWN_COMMAND_MESSAGE = "Unknown command was provided";
 		public const string INVALID_DATA_FOLDER_COMMAND_ARGUMENTS = "Invalid -df command arguments. Should be -df <path_to_folder>. Example -df C:\\MyLogs";
+		public const string INVALID_FOLDER_PATH = "Invalid path to folder";
 		public const char PATH_WRAPPER_SYMBOL = '"';
 	}
 }

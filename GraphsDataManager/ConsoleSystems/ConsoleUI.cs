@@ -78,7 +78,7 @@ namespace GraphsDataManager.ConsoleSystems
 
 			if (ValidatePathToFolder(dataFolderPath) == false)
 			{
-				//TODO invalig path to data folder message
+				Console.WriteLine(ConsoleUIDatabase.INVALID_FOLDER_PATH);
 				return;
 			}
 
