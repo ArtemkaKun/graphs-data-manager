@@ -16,8 +16,8 @@ namespace GraphsDataManager.ConsoleSystems
 		{
 			CommandActionMap = new Dictionary<string, Action<string[]>>
 			{
-				{ConsoleUIDatabase.CONVERT_COMMAND, TryConvertLogsIntoResults},
-				{ConsoleUIDatabase.DATA_FOLDER_COMMAND, TryGetDataFromFolder}
+				{ConsoleUIDatabase.DATA_FOLDER_COMMAND, TryGetDataFromFolder},
+				{ConsoleUIDatabase.CONVERT_COMMAND, TryConvertLogsIntoResults}
 			};
 		}
 
@@ -42,12 +42,54 @@ namespace GraphsDataManager.ConsoleSystems
 
 		private string[] SplitStringOnArguments (string stringToSplit)
 		{
-			return stringToSplit.Split(" ");
+			return stringToSplit.Split(ConsoleUIDatabase.COMMAND_ARGUMENTS_SEPARATOR);
 		}
 
 		private bool IsCommandArgumentsValid (string[] arguments)
 		{
 			return (arguments.Length > 1) && arguments[0].Contains(ConsoleUIDatabase.COMMAND_ARGUMENT_PREFIX);
+		}
+
+		private void TryGetDataFromFolder (string[] arguments)
+		{
+			if (arguments.Length < 2)
+			{
+				//TODO invalid commands arguments message
+				return;
+			}
+
+			string dataFolderPath = arguments[1].Trim('"');
+
+			if (ValidatePathToFolder(dataFolderPath) == false)
+			{
+				//TODO invalig path to data folder message
+				return;
+			}
+
+			FileInfo[] filesInfo = GetAllLogFilesInfo(dataFolderPath);
+			PrintAllLogsFilesInFolder(filesInfo);
+			Program.ResultsMaintainer.SetPathToDataDirectory(dataFolderPath, filesInfo);
+		}
+
+		private FileInfo[] GetAllLogFilesInfo (string pathToFolder)
+		{
+			string[] allLogPathsInFolder = Directory.GetFiles(pathToFolder, ConsoleUIDatabase.SEARCH_FILE_PREFIX + ConsoleUIDatabase.LOG_DATA_EXTENSION);
+			FileInfo[] filesInfo = new FileInfo[allLogPathsInFolder.Length];
+
+			for (int filePathPointer = 0; filePathPointer < allLogPathsInFolder.Length; filePathPointer++)
+			{
+				filesInfo[filePathPointer] = new FileInfo(allLogPathsInFolder[filePathPointer]);
+			}
+
+			return filesInfo;
+		}
+
+		private void PrintAllLogsFilesInFolder (FileInfo[] filesInfo)
+		{
+			for (int fileInfoPointer = 0; fileInfoPointer < filesInfo.Length; fileInfoPointer++)
+			{
+				Console.WriteLine(ConsoleUIDatabase.LOG_FILES_TABLE_ROW_TEMPLATE, fileInfoPointer, filesInfo[fileInfoPointer].Name);
+			}
 		}
 
 		private void TryConvertLogsIntoResults (string[] arguments)
@@ -70,27 +112,6 @@ namespace GraphsDataManager.ConsoleSystems
 			Program.ResultsMaintainer.StartConversion(selectedFileIDs);
 		}
 
-		private void TryGetDataFromFolder (string[] arguments)
-		{
-			if (arguments.Length < 2)
-			{
-				//TODO invalid commands arguments message
-				return;
-			}
-
-			string dataFolderPath = arguments[1].Trim('"');
-
-			if (ValidatePathToFolder(dataFolderPath) == false)
-			{
-				//TODO invalig path to data folder message
-				return;
-			}
-
-			FileInfo[] filesInfo = GetAllLogFilesInfo(dataFolderPath);
-			Program.ResultsMaintainer.SetPathToDataDirectory(dataFolderPath, filesInfo);
-			PrintAllLogsFilesInFolder(filesInfo);
-		}
-
 		private bool ValidatePathToFolder (string pathToFolder)
 		{
 			return (IsStringValid(pathToFolder) == true) && Directory.Exists(pathToFolder);
@@ -99,27 +120,6 @@ namespace GraphsDataManager.ConsoleSystems
 		private bool IsStringValid (string stringToValidate)
 		{
 			return (string.IsNullOrEmpty(stringToValidate) == false) && (string.IsNullOrWhiteSpace(stringToValidate) == false);
-		}
-
-		private FileInfo[] GetAllLogFilesInfo (string pathToFolder)
-		{
-			string[]   allLogPathsInFolder = Directory.GetFiles(pathToFolder, ConsoleUIDatabase.SEARCH_FILE_PREFIX + ConsoleUIDatabase.LOG_DATA_EXTENSION);
-			FileInfo[] filesInfo           = new FileInfo[allLogPathsInFolder.Length];
-
-			for (int filePathPointer = 0; filePathPointer < allLogPathsInFolder.Length; filePathPointer++)
-			{
-				filesInfo[filePathPointer] = new FileInfo(allLogPathsInFolder[filePathPointer]);
-			}
-
-			return filesInfo;
-		}
-
-		private void PrintAllLogsFilesInFolder (FileInfo[] filesInfo)
-		{
-			for (int fileInfoPointer = 0; fileInfoPointer < filesInfo.Length; fileInfoPointer++)
-			{
-				Console.WriteLine(ConsoleUIDatabase.LOG_FILES_TABLE_ROW_TEMPLATE, fileInfoPointer, filesInfo[fileInfoPointer].Name);
-			}
 		}
 	}
 }
