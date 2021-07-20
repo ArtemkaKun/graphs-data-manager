@@ -37,15 +37,15 @@ namespace GraphsDataManager.LogConversionSystems
 
 		private void WriteResults ()
 		{
-			string pathToResultsFile = Path.Combine(Program.FolderManager.PathToDataDirectory, $"convert_{DateTime.Now.ToString("dd-MM-yy")}.csv");
-			using StreamWriter writer = new(pathToResultsFile, false);
-			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
+			string pathToResultsFile = Path.Combine(Program.FolderManager.PathToDataDirectory, $"convert_{DateTime.Now.ToString("dd-MM-yy_hh-mm")}.csv");
+			using StreamWriter writerStream = new(pathToResultsFile, false);
+			using CsvWriter OutputCSVWriter = new(writerStream, CultureInfo.InvariantCulture);
 
-			WriteFirstDataLine(ResultsDataCollection.First().Value, csv);
+			WriteFirstDataLine(ResultsDataCollection.First().Value, OutputCSVWriter);
 
 			foreach ((string logFileName, List<double> value) in ResultsDataCollection)
 			{
-				WriteSecondDataLine(value, csv, logFileName);
+				WriteSecondDataLine(value, OutputCSVWriter, logFileName);
 			}
 		}
 
@@ -53,14 +53,6 @@ namespace GraphsDataManager.LogConversionSystems
 		{
 			InsertEmptyColumns(csv, 3);
 			InsertTimeSteps(averageFPSCollection, csv);
-		}
-
-		private void InsertEmptyColumns (CsvWriter csv, int countOfEmptyColumns)
-		{
-			for (int emptyColumnPointer = 0; emptyColumnPointer < countOfEmptyColumns; emptyColumnPointer++)
-			{
-				csv.WriteField(null);
-			}
 		}
 
 		private void InsertTimeSteps (List<double> averageFPSCollection, CsvWriter csv)
@@ -83,6 +75,14 @@ namespace GraphsDataManager.LogConversionSystems
 			for (int avgFPSValuePointer = 0; avgFPSValuePointer < averageFPSCollection.Count; avgFPSValuePointer++)
 			{
 				csv.WriteField(averageFPSCollection[avgFPSValuePointer]);
+			}
+		}
+
+		private void InsertEmptyColumns (CsvWriter csv, int countOfEmptyColumns)
+		{
+			for (int emptyColumnPointer = 0; emptyColumnPointer < countOfEmptyColumns; emptyColumnPointer++)
+			{
+				csv.WriteField(null);
 			}
 		}
 	}
