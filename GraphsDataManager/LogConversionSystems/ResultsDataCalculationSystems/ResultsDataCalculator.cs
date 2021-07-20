@@ -35,7 +35,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 				if (logRecords.Count == 0)
 				{
-					Console.WriteLine(LogConverterDatabase.EMPTY_LOG_MESSAGE, nameOfLogFile);
+					Console.WriteLine(ResultsDataCalculatorDatabase.EMPTY_LOG_MESSAGE, nameOfLogFile);
 					continue;
 				}
 
@@ -55,7 +55,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 			if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
 			{
-				errorMessage = string.Format(LogConverterDatabase.IS_NOT_AS_NUMBER_MESSAGE, selectedIDInStringForm);
+				errorMessage = string.Format(ResultsDataCalculatorDatabase.IS_NOT_AS_NUMBER_MESSAGE, selectedIDInStringForm);
 			}
 			else
 			{
@@ -63,7 +63,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 				if (pathToLog == null)
 				{
-					errorMessage = string.Format(LogConverterDatabase.NO_LOG_WITH_THIS_ID_MESSAGE, selectedID);
+					errorMessage = string.Format(ResultsDataCalculatorDatabase.NO_LOG_WITH_THIS_ID_MESSAGE, selectedID);
 				}
 			}
 
