@@ -52,19 +52,11 @@ namespace GraphsDataManager.LogConversionSystems
 		{
 			for (int selectedFileIDPointer = 0; selectedFileIDPointer < SelectedLogIDs.Length; selectedFileIDPointer++)
 			{
-				(string errorMessage, string pathToLog) = TryGetPathToLogFile(selectedFileIDPointer);
+				(string errorMessage, List<LogData> logRecords) = TryGetLogRecords(selectedFileIDPointer);
 
 				if (errorMessage != null)
 				{
 					Console.WriteLine(errorMessage);
-					continue;
-				}
-
-				List<LogData> logRecords = ReadLogData(pathToLog);
-
-				if (logRecords.Count == 0)
-				{
-					Console.WriteLine(LogConverterDatabase.EMPTY_LOG_MESSAGE, Path.GetFileNameWithoutExtension(pathToLog));
 					continue;
 				}
 
@@ -74,6 +66,24 @@ namespace GraphsDataManager.LogConversionSystems
 
 				Console.WriteLine("Conversion was done");
 			}
+		}
+
+		private (string errorMessage, List<LogData> logRecords) TryGetLogRecords (int selectedFileIDPointer)
+		{
+			List<LogData> logRecords = null;
+			(string errorMessage, string pathToLog) = TryGetPathToLogFile(selectedFileIDPointer);
+
+			if (errorMessage == null)
+			{
+				logRecords = ReadLogData(pathToLog);
+
+				if (logRecords.Count == 0)
+				{
+					errorMessage = string.Format(LogConverterDatabase.EMPTY_LOG_MESSAGE, Path.GetFileNameWithoutExtension(pathToLog));
+				}
+			}
+
+			return (errorMessage, logRecords);
 		}
 
 		private (string errorMessage, string pathToLog) TryGetPathToLogFile (int selectedFileIDPointer)
