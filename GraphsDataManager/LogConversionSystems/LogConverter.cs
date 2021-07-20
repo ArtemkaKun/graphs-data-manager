@@ -11,6 +11,7 @@ namespace GraphsDataManager.LogConversionSystems
 	public class LogConverter
 	{
 		private string[] SelectedLogIDs { get; set; }
+		private string CurrentPathToLog { get; set; }
 
 		public void TryConvertLogsIntoResults (string[] arguments)
 		{
@@ -50,27 +51,17 @@ namespace GraphsDataManager.LogConversionSystems
 
 		private void StartConversion ()
 		{
-			//TODO add check for data directory path and files info
-
 			for (int selectedFileIDPointer = 0; selectedFileIDPointer < SelectedLogIDs.Length; selectedFileIDPointer++)
 			{
-				string selectedIDInStringForm = SelectedLogIDs[selectedFileIDPointer];
+				string errorMessage = TryGetPathToLogFile(selectedFileIDPointer);
 
-				if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
+				if (errorMessage != null)
 				{
-					//TODO is not a number error
+					Console.WriteLine(errorMessage);
 					continue;
 				}
 
-				string selectedLogFile = Program.FolderManager.GetLogPathByPositionIndex(selectedID);
-
-				if (Program.FolderManager.GetLogPathByPositionIndex(selectedID) == null)
-				{
-					//TODO no logs with that id
-					continue;
-				}
-
-				List<LogData> logRecords = ReadLogData(selectedLogFile);
+				List<LogData> logRecords = ReadLogData(CurrentPathToLog);
 
 				if (logRecords.Count == 0)
 				{
@@ -84,6 +75,28 @@ namespace GraphsDataManager.LogConversionSystems
 
 				Console.WriteLine("Conversion was done");
 			}
+		}
+
+		private string TryGetPathToLogFile (int selectedFileIDPointer)
+		{
+			string errorMessage = null;
+			string selectedIDInStringForm = SelectedLogIDs[selectedFileIDPointer];
+
+			if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
+			{
+				//TODO is not a number error
+			}
+			else
+			{
+				CurrentPathToLog = Program.FolderManager.GetLogPathByPositionIndex(selectedID);
+
+				if (CurrentPathToLog == null)
+				{
+					//TODO no logs with that id
+				}
+			}
+
+			return errorMessage;
 		}
 
 		private List<LogData> ReadLogData (string pathToLog)
