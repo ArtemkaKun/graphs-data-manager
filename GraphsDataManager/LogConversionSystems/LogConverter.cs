@@ -11,6 +11,7 @@ namespace GraphsDataManager.LogConversionSystems
 	public class LogConverter
 	{
 		private string[] SelectedLogIDs { get; set; }
+		private Dictionary<string, List<double>> ResultsDataCollection = new();
 
 		public void TryConvertLogsIntoResults (string[] arguments)
 		{
@@ -61,19 +62,22 @@ namespace GraphsDataManager.LogConversionSystems
 				}
 
 				List<LogData> logRecords = ReadLogData(pathToLog);
+				string nameOfLogFile = Path.GetFileNameWithoutExtension(pathToLog);
 
 				if (logRecords.Count == 0)
 				{
-					Console.WriteLine(LogConverterDatabase.EMPTY_LOG_MESSAGE, Path.GetFileNameWithoutExtension(pathToLog));
+					Console.WriteLine(LogConverterDatabase.EMPTY_LOG_MESSAGE, nameOfLogFile);
 					continue;
 				}
 
 				Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
-				Queue<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
-				WriteResults(Program.FolderManager.PathToDataDirectory, averageFPSCollection);
-
-				Console.WriteLine("Conversion was done");
+				List<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
+				ResultsDataCollection.Add(nameOfLogFile, averageFPSCollection);
 			}
+
+			PrepareResultsToOutput();
+			WriteResults();
+			Console.WriteLine("Conversion was done");
 		}
 
 		private (string errorMessage, string pathToLog) TryGetPathToLogFile (int selectedFileIDPointer)
@@ -144,34 +148,46 @@ namespace GraphsDataManager.LogConversionSystems
 			return timeSliceFrameTimesMatrix;
 		}
 
-		private Queue<double> CalculateAverageFPSForSlices (Queue<List<double>> timeSliceFrameTimesMatrix)
+		private List<double> CalculateAverageFPSForSlices (Queue<List<double>> timeSliceFrameTimesMatrix)
 		{
-			Queue<double> averageFPSCollection = new(timeSliceFrameTimesMatrix.Count);
+			List<double> averageFPSCollection = new(timeSliceFrameTimesMatrix.Count);
 
 			while (timeSliceFrameTimesMatrix.Count > 0)
 			{
-				averageFPSCollection.Enqueue(1000.0d / timeSliceFrameTimesMatrix.Dequeue().Average()); //TODO average or median?
+				averageFPSCollection.Add(1000.0d / timeSliceFrameTimesMatrix.Dequeue().Average()); //TODO average or median?
 			}
 
 			return averageFPSCollection;
 		}
 
-		private void WriteResults (string pathToStoreResult, Queue<double> averageFPSCollection)
+		private void PrepareResultsToOutput ()
 		{
-			string pathToResultsFile = Path.Combine(pathToStoreResult, $"convert_{DateTime.Now.ToString("dd-MM-yy")}.csv");
-			bool isPathAlreadyExists = File.Exists(pathToResultsFile);
-			using StreamWriter writer = new(pathToResultsFile, true);
-			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
+			int shortestListLength = ResultsDataCollection.Values.Min(resultsCollection => resultsCollection.Count);
 
-			if (isPathAlreadyExists == false)
+			foreach ((string logFileName, List<double> value) in ResultsDataCollection)
 			{
-				WriteFirstDataLine(averageFPSCollection, csv);
+				while (value.Count > shortestListLength)
+				{
+					value.RemoveAt(value.Count - 1);
+				}
 			}
-
-			WriteSecondDataLine(averageFPSCollection, csv, pathToResultsFile);
 		}
 
-		private void WriteFirstDataLine (Queue<double> averageFPSCollection, CsvWriter csv)
+		private void WriteResults ()
+		{
+			string pathToResultsFile = Path.Combine(Program.FolderManager.PathToDataDirectory, $"convert_{DateTime.Now.ToString("dd-MM-yy")}.csv");
+			using StreamWriter writer = new(pathToResultsFile, false);
+			using CsvWriter csv = new(writer, CultureInfo.InvariantCulture);
+
+			WriteFirstDataLine(ResultsDataCollection.First().Value, csv);
+
+			foreach ((string logFileName, List<double> value) in ResultsDataCollection)
+			{
+				WriteSecondDataLine(value, csv, logFileName);
+			}
+		}
+
+		private void WriteFirstDataLine (List<double> averageFPSCollection, CsvWriter csv)
 		{
 			InsertEmptyColumns(csv, 3);
 			InsertTimeSteps(averageFPSCollection, csv);
@@ -185,7 +201,7 @@ namespace GraphsDataManager.LogConversionSystems
 			}
 		}
 
-		private void InsertTimeSteps (Queue<double> averageFPSCollection, CsvWriter csv)
+		private void InsertTimeSteps (List<double> averageFPSCollection, CsvWriter csv)
 		{
 			double stepNumber = 0.0d;
 
@@ -196,15 +212,15 @@ namespace GraphsDataManager.LogConversionSystems
 			}
 		}
 
-		private void WriteSecondDataLine (Queue<double> averageFPSCollection, CsvWriter csv, string resultsName)
+		private void WriteSecondDataLine (List<double> averageFPSCollection, CsvWriter csv, string resultsName)
 		{
 			csv.NextRecord();
 			csv.WriteField(resultsName);
 			InsertEmptyColumns(csv, 2);
 
-			while (averageFPSCollection.Count > 0)
+			for (int avgFPSValuePointer = 0; avgFPSValuePointer < averageFPSCollection.Count; avgFPSValuePointer++)
 			{
-				csv.WriteField(averageFPSCollection.Dequeue());
+				csv.WriteField(averageFPSCollection[avgFPSValuePointer]);
 			}
 		}
 	}
