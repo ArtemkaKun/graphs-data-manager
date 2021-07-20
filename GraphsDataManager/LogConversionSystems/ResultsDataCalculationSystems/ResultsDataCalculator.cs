@@ -117,7 +117,7 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 				{
 					timeSliceFrameTimesMatrix.Enqueue(new List<double>(frameTimesBuffer));
 					frameTimesBuffer.Clear();
-					sliceTime -= step; //TODO or sliceTime = 0? What should I do in a situation when with previous frame sliceTime was 0.98 and with the next frame it already 1.05 and step is 1?
+					sliceTime -= step;
 				}
 				else
 				{
@@ -131,12 +131,6 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 				}
 			}
 
-			if (frameTimesBuffer.Count > 0)
-			{
-				//TODO for example with the last data record sliceTime didn't be bigger or equal then timestap and counted frame times wasn't added to the matrix. Should I add them or leave?
-				//TODO this can probably be annihilated with smaller time step
-			}
-
 			return timeSliceFrameTimesMatrix;
 		}
 
@@ -146,7 +140,7 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 
 			while (timeSliceFrameTimesMatrix.Count > 0)
 			{
-				averageFPSCollection.Add(1000.0d / timeSliceFrameTimesMatrix.Dequeue().Average()); //TODO average or median?
+				averageFPSCollection.Add(1000.0d / timeSliceFrameTimesMatrix.Dequeue().Average());
 			}
 
 			return averageFPSCollection;
