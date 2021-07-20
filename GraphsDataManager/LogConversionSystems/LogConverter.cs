@@ -64,8 +64,8 @@ namespace GraphsDataManager.LogConversionSystems
 
 				if (logRecords.Count == 0)
 				{
-					//TODO empty table message
-					return;
+					Console.WriteLine(LogConverterDatabase.EMPTY_LOG_MESSAGE, Path.GetFileNameWithoutExtension(pathToLog));
+					continue;
 				}
 
 				Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
