@@ -11,7 +11,6 @@ namespace GraphsDataManager.LogConversionSystems
 	public class LogConverter
 	{
 		private string[] SelectedLogIDs { get; set; }
-		private string CurrentPathToLog { get; set; }
 
 		public void TryConvertLogsIntoResults (string[] arguments)
 		{
@@ -53,7 +52,7 @@ namespace GraphsDataManager.LogConversionSystems
 		{
 			for (int selectedFileIDPointer = 0; selectedFileIDPointer < SelectedLogIDs.Length; selectedFileIDPointer++)
 			{
-				string errorMessage = TryGetPathToLogFile(selectedFileIDPointer);
+				(string errorMessage, string pathToLog) = TryGetPathToLogFile(selectedFileIDPointer);
 
 				if (errorMessage != null)
 				{
@@ -61,7 +60,7 @@ namespace GraphsDataManager.LogConversionSystems
 					continue;
 				}
 
-				List<LogData> logRecords = ReadLogData(CurrentPathToLog);
+				List<LogData> logRecords = ReadLogData(pathToLog);
 
 				if (logRecords.Count == 0)
 				{
@@ -77,9 +76,10 @@ namespace GraphsDataManager.LogConversionSystems
 			}
 		}
 
-		private string TryGetPathToLogFile (int selectedFileIDPointer)
+		private (string errorMessage, string pathToLog) TryGetPathToLogFile (int selectedFileIDPointer)
 		{
 			string errorMessage = null;
+			string pathToLog = null;
 			string selectedIDInStringForm = SelectedLogIDs[selectedFileIDPointer];
 
 			if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
@@ -88,15 +88,15 @@ namespace GraphsDataManager.LogConversionSystems
 			}
 			else
 			{
-				CurrentPathToLog = Program.FolderManager.GetLogPathByPositionIndex(selectedID);
+				pathToLog = Program.FolderManager.GetLogPathByPositionIndex(selectedID);
 
-				if (CurrentPathToLog == null)
+				if (pathToLog == null)
 				{
-					//TODO no logs with that id
+					errorMessage = string.Format(LogConverterDatabase.NO_LOG_WITH_THIS_ID_MESSAGE, selectedID);
 				}
 			}
 
-			return errorMessage;
+			return (errorMessage, pathToLog);
 		}
 
 		private List<LogData> ReadLogData (string pathToLog)
