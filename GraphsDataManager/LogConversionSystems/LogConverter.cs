@@ -84,7 +84,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 			if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
 			{
-				//TODO is not a number error
+				errorMessage = string.Format(LogConverterDatabase.IS_NOT_AS_NUMBER_MESSAGE, selectedIDInStringForm);
 			}
 			else
 			{
