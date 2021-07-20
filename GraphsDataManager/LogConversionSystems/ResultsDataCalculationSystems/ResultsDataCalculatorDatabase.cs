@@ -1,4 +1,4 @@
-﻿namespace GraphsDataManager.LogConversionSystems
+﻿namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 {
 	public static class ResultsDataCalculatorDatabase
 	{

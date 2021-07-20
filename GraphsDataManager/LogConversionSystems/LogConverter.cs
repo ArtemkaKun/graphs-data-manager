@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using GraphsDataManager.Helpers;
+using GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems;
 
 namespace GraphsDataManager.LogConversionSystems
 {

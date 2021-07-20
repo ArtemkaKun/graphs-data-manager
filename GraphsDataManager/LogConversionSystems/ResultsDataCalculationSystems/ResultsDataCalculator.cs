@@ -5,11 +5,12 @@ using System.IO;
 using System.Linq;
 using CsvHelper;
 
-namespace GraphsDataManager.LogConversionSystems
+namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 {
 	public class ResultsDataCalculator
 	{
 		private string[] SelectedLogIDs { get; set; }
+		private Dictionary<string, List<double>> ResultsDataCollection { get; set; }
 
 		public ResultsDataCalculator (string[] selectedLogIDs)
 		{
@@ -18,33 +19,52 @@ namespace GraphsDataManager.LogConversionSystems
 
 		public Dictionary<string, List<double>> ProceedDataFromLogs ()
 		{
-			Dictionary<string, List<double>> resultsDataCollection = new(SelectedLogIDs.Length);
+			ResultsDataCollection = new Dictionary<string, List<double>>(SelectedLogIDs.Length);
 
 			for (int selectedFileIDPointer = 0; selectedFileIDPointer < SelectedLogIDs.Length; selectedFileIDPointer++)
 			{
-				(string errorMessage, string pathToLog) = TryGetPathToLogFile(selectedFileIDPointer);
+				ProceedLog(selectedFileIDPointer);
+			}
 
-				if (errorMessage != null)
-				{
-					Console.WriteLine(errorMessage);
-					continue;
-				}
+			return ResultsDataCollection;
+		}
 
-				List<LogData> logRecords = ReadLogData(pathToLog);
+		private void ProceedLog (int selectedFileIDPointer)
+		{
+			(string errorMessage, LogData logData) = TryGetLogData(selectedFileIDPointer);
+
+			if (errorMessage != null)
+			{
+				Console.WriteLine(errorMessage);
+				return;
+			}
+
+			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logData.LogRecords, 1.0d);
+			List<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
+			ResultsDataCollection.Add(logData.LogFileName, averageFPSCollection);
+		}
+
+		private (string errorMessage, LogData logData) TryGetLogData (int selectedFileIDPointer)
+		{
+			LogData logData = null;
+			(string errorMessage, string pathToLog) = TryGetPathToLogFile(selectedFileIDPointer);
+
+			if (errorMessage == null)
+			{
+				List<LogDataRecord> logRecords = ReadLogData(pathToLog);
 				string nameOfLogFile = Path.GetFileNameWithoutExtension(pathToLog);
 
 				if (logRecords.Count == 0)
 				{
-					Console.WriteLine(ResultsDataCalculatorDatabase.EMPTY_LOG_MESSAGE, nameOfLogFile);
-					continue;
+					errorMessage = string.Format(ResultsDataCalculatorDatabase.EMPTY_LOG_MESSAGE, nameOfLogFile);
 				}
-
-				Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logRecords, 1.0d);
-				List<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
-				resultsDataCollection.Add(nameOfLogFile, averageFPSCollection);
+				else
+				{
+					logData = new LogData(nameOfLogFile, logRecords);
+				}
 			}
 
-			return resultsDataCollection;
+			return (errorMessage, logData);
 		}
 
 		private (string errorMessage, string pathToLog) TryGetPathToLogFile (int selectedFileIDPointer)
@@ -70,14 +90,14 @@ namespace GraphsDataManager.LogConversionSystems
 			return (errorMessage, pathToLog);
 		}
 
-		private List<LogData> ReadLogData (string pathToLog)
+		private List<LogDataRecord> ReadLogData (string pathToLog)
 		{
 			using StreamReader reader = new(pathToLog);
 			using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
-			return csv.GetRecords<LogData>().ToList();
+			return csv.GetRecords<LogDataRecord>().ToList();
 		}
 
-		private Queue<List<double>> ProceedLogDataWithStep (List<LogData> logRecords, double step)
+		private Queue<List<double>> ProceedLogDataWithStep (List<LogDataRecord> logRecords, double step)
 		{
 			Queue<List<double>> timeSliceFrameTimesMatrix = new();
 			List<double> frameTimesBuffer = new();
@@ -86,7 +106,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 			for (int recordPointer = 0; recordPointer < logRecords.Count; recordPointer++)
 			{
-				LogData currentLogData = logRecords[recordPointer];
+				LogDataRecord currentLogDataRecord = logRecords[recordPointer];
 
 				if (sliceTime >= step)
 				{
@@ -98,11 +118,11 @@ namespace GraphsDataManager.LogConversionSystems
 				{
 					if (recordPointer != 0)
 					{
-						sliceTime += currentLogData.TimeInSeconds - previousTime;
+						sliceTime += currentLogDataRecord.TimeInSeconds - previousTime;
 					}
 
-					frameTimesBuffer.Add(currentLogData.MsBetweenDisplayChange);
-					previousTime = currentLogData.TimeInSeconds;
+					frameTimesBuffer.Add(currentLogDataRecord.MsBetweenDisplayChange);
+					previousTime = currentLogDataRecord.TimeInSeconds;
 				}
 			}
 
