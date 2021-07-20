@@ -59,7 +59,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 		private void GetResultsData ()
 		{
-			ResultsDataCollection = new LogParser(SelectedLogIDs).ProceedDataFromLogs();
+			ResultsDataCollection = new ResultsDataCalculator(SelectedLogIDs).ProceedDataFromLogs();
 		}
 
 		private void PrepareResultsToOutput ()

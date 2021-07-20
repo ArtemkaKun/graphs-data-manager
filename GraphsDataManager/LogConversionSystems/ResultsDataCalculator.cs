@@ -4,15 +4,14 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using CsvHelper;
-using GraphsDataManager.LogConversionSystems;
 
-namespace GraphsDataManager
+namespace GraphsDataManager.LogConversionSystems
 {
-	public class LogParser
+	public class ResultsDataCalculator
 	{
 		private string[] SelectedLogIDs { get; set; }
 
-		public LogParser (string[] selectedLogIDs)
+		public ResultsDataCalculator (string[] selectedLogIDs)
 		{
 			SelectedLogIDs = selectedLogIDs;
 		}
