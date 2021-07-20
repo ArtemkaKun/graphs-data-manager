@@ -39,9 +39,7 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 				return;
 			}
 
-			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logData.LogRecords, 1.0d);
-			List<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
-			ResultsDataCollection.Add(logData.LogFileName, averageFPSCollection);
+			ResultsDataCollection.Add(logData.LogFileName, CalculateAverageFPSWithStep(logData));
 		}
 
 		private (string errorMessage, LogData logData) TryGetLogData (int selectedFileIDPointer)
@@ -95,6 +93,13 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 			using StreamReader reader = new(pathToLog);
 			using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
 			return csv.GetRecords<LogDataRecord>().ToList();
+		}
+
+		private List<double> CalculateAverageFPSWithStep (LogData logData)
+		{
+			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logData.LogRecords, 1.0d);
+			List<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
+			return averageFPSCollection;
 		}
 
 		private Queue<List<double>> ProceedLogDataWithStep (List<LogDataRecord> logRecords, double step)
