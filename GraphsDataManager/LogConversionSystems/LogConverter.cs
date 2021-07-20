@@ -31,7 +31,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 			if (arguments.Length < 2)
 			{
-				//TODO invalid commands arguments message
+				errorMessage = LogConverterDatabase.INVALID_CONVERT_COMMAND_MESSAGE;
 			}
 			else
 			{
@@ -39,7 +39,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 				if (selectedFiles.CheckIfStringIsValid() == false)
 				{
-					//TODO invalig selected files
+					errorMessage = LogConverterDatabase.INVALID_CONVERT_COMMAND_MESSAGE;
 				}
 
 				SelectedLogIDs = selectedFiles.Split(",");
