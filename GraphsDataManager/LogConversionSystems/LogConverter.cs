@@ -10,33 +10,51 @@ namespace GraphsDataManager.LogConversionSystems
 {
 	public class LogConverter
 	{
+		private string[] SelectedLogIDs { get; set; }
+
 		public void TryConvertLogsIntoResults (string[] arguments)
 		{
+			string errorMessage = TryGetSelectedIDs(arguments);
+
+			if (errorMessage != null)
+			{
+				Console.WriteLine(errorMessage);
+				return;
+			}
+
+			StartConversion();
+		}
+
+		private string TryGetSelectedIDs (string[] arguments)
+		{
+			string errorMessage = null;
+
 			if (arguments.Length < 2)
 			{
 				//TODO invalid commands arguments message
-				return;
 			}
-
-			string selectedFiles = arguments[1];
-
-			if (selectedFiles.CheckIfStringIsValid() == false)
+			else
 			{
-				//TODO invalig selected files
-				return;
+				string selectedFiles = arguments[1];
+
+				if (selectedFiles.CheckIfStringIsValid() == false)
+				{
+					//TODO invalig selected files
+				}
+
+				SelectedLogIDs = selectedFiles.Split(",");
 			}
 
-			string[] selectedIDs = selectedFiles.Split(",");
-			StartConversion(selectedIDs);
+			return errorMessage;
 		}
 
-		private void StartConversion (string[] selectedFileIDs)
+		private void StartConversion ()
 		{
 			//TODO add check for data directory path and files info
 
-			for (int selectedFileIDPointer = 0; selectedFileIDPointer < selectedFileIDs.Length; selectedFileIDPointer++)
+			for (int selectedFileIDPointer = 0; selectedFileIDPointer < SelectedLogIDs.Length; selectedFileIDPointer++)
 			{
-				string selectedIDInStringForm = selectedFileIDs[selectedFileIDPointer];
+				string selectedIDInStringForm = SelectedLogIDs[selectedFileIDPointer];
 
 				if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
 				{
