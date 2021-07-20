@@ -42,7 +42,7 @@ namespace GraphsDataManager.LogConversionSystems
 					errorMessage = LogConverterDatabase.INVALID_CONVERT_COMMAND_MESSAGE;
 				}
 
-				SelectedLogIDs = selectedFiles.Split(",");
+				SelectedLogIDs = selectedFiles.Split(LogConverterDatabase.LOG_IDS_SEPARATOR);
 			}
 
 			return errorMessage;
