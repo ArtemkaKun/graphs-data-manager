@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GraphsDataManager.Helpers;
 using GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems;
 
@@ -60,18 +61,40 @@ namespace GraphsDataManager.LogConversionSystems
 				return (null, false);
 			}
 
-			if (arguments[2] != "-vs")
+			if (arguments[2] != LogConverterDatabase.VERSUS_COMMAND)
 			{
-				return ($"Unknown argument {arguments[2]}", false);
+				return (string.Format(LogConverterDatabase.UNKNOWN_ARGUMENT_MESSAGE, arguments[2]), false);
 			}
 
-			return SelectedLogIDs.Length == 2 ? (null, true) : ("Invalid count of logs to compare. Should be 2", false);
+			return SelectedLogIDs.Length == 2 ? (null, true) : (LogConverterDatabase.INVALID_COUNT_OF_LOGS_TO_COMPARE, false);
 		}
 
 		private void StartConversion (bool isVersusModeActive)
 		{
-			OutputResultsData(GetResultsData(), isVersusModeActive);
+			Dictionary<string, List<double>> resultsDataCollection = GetResultsData();
+			List<double> comparisonDataSequence = null;
+
+			if (isVersusModeActive == true)
+			{
+				comparisonDataSequence = CompareFirstResultsToSecond(resultsDataCollection);
+			}
+
+			OutputResultsData(resultsDataCollection, comparisonDataSequence);
 			Console.WriteLine("Conversion was done");
+		}
+
+		private List<double> CompareFirstResultsToSecond (Dictionary<string, List<double>> resultsDataCollection)
+		{
+			List<double> firstDataSequence = resultsDataCollection.First().Value;
+			List<double> secondDataSequence = resultsDataCollection.Last().Value;
+			List<double> comparisonDataSequence = new(firstDataSequence.Count);
+
+			for (int resultDataPointer = 0; resultDataPointer < firstDataSequence.Count; resultDataPointer++)
+			{
+				comparisonDataSequence.Add(((secondDataSequence[resultDataPointer] * 100.0d) / firstDataSequence[resultDataPointer]) - 100.0d);
+			}
+
+			return comparisonDataSequence;
 		}
 
 		private Dictionary<string, List<double>> GetResultsData ()
@@ -79,9 +102,9 @@ namespace GraphsDataManager.LogConversionSystems
 			return new ResultsDataCalculator(SelectedLogIDs).ProceedDataFromLogs();
 		}
 
-		private void OutputResultsData (Dictionary<string, List<double>> resultsData, bool isVersusModeActive)
+		private void OutputResultsData (Dictionary<string, List<double>> resultsData, List<double> comparisonDataSequence)
 		{
-			new OutputDataManager(resultsData, isVersusModeActive).OutputResultsDataToFile();
+			new OutputDataManager(resultsData, comparisonDataSequence).OutputResultsDataToFile();
 		}
 	}
 }

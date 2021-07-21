@@ -13,12 +13,12 @@ namespace GraphsDataManager.LogConversionSystems
 		private const string DD_MM_YY_HH_MM_DATETIME_FORMAT = "dd-MM-yy_hh-mm";
 
 		private Dictionary<string, List<double>> ResultsDataCollection { get; set; }
-		private bool IsVersusModeActive { get; set; }
+		private List<double> ComparisonDataSequence { get; set; }
 
-		public OutputDataManager (Dictionary<string, List<double>> resultsDataCollection, bool isVersusModeActive)
+		public OutputDataManager (Dictionary<string, List<double>> resultsDataCollection, List<double> comparisonDataSequence)
 		{
-			IsVersusModeActive = isVersusModeActive;
 			ResultsDataCollection = resultsDataCollection;
+			ComparisonDataSequence = comparisonDataSequence;
 		}
 
 		public void OutputResultsDataToFile ()
@@ -53,9 +53,9 @@ namespace GraphsDataManager.LogConversionSystems
 				WriteSecondDataLine(value, outputCsvWriter, logFileName);
 			}
 
-			if (IsVersusModeActive == true)
+			if (ComparisonDataSequence != null)
 			{
-				WriteVersusLine(CompareFirstResultsToSecond(), outputCsvWriter);
+				WriteVersusLine(outputCsvWriter);
 			}
 		}
 
@@ -88,28 +88,14 @@ namespace GraphsDataManager.LogConversionSystems
 			}
 		}
 
-		private List<double> CompareFirstResultsToSecond ()
-		{
-			List<double> firstDataSequence = ResultsDataCollection.First().Value;
-			List<double> secondDataSequence = ResultsDataCollection.Last().Value;
-			List<double> comparisonDataSequence = new(firstDataSequence.Count);
-
-			for (int resultDataPointer = 0; resultDataPointer < firstDataSequence.Count; resultDataPointer++)
-			{
-				comparisonDataSequence.Add(((secondDataSequence[resultDataPointer] * 100.0d) / firstDataSequence[resultDataPointer]) - 100.0d);
-			}
-
-			return comparisonDataSequence;
-		}
-
-		private void WriteVersusLine (List<double> comparisonDataSequence, CsvWriter csv)
+		private void WriteVersusLine (CsvWriter csv)
 		{
 			csv.NextRecord();
 			InsertEmptyColumns(csv, 3);
 
-			for (int comparisonRecordPointer = 0; comparisonRecordPointer < comparisonDataSequence.Count; comparisonRecordPointer++)
+			for (int comparisonRecordPointer = 0; comparisonRecordPointer < ComparisonDataSequence.Count; comparisonRecordPointer++)
 			{
-				csv.WriteField(comparisonDataSequence[comparisonRecordPointer]);
+				csv.WriteField(ComparisonDataSequence[comparisonRecordPointer]);
 			}
 		}
 

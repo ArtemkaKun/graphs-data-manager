@@ -8,7 +8,7 @@ namespace GraphsDataManager
 	{
 		public static LogConverter ResultsMaintainer { get; } = new();
 		public static DataFolderManager FolderManager { get; } = new();
-		
+
 		private static ConsoleUI UI { get; } = new();
 
 		private static void Main ()
