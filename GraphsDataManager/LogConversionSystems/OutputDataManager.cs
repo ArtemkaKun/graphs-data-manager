@@ -61,7 +61,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 			for (int fpsFPSNumberPointer = 0; fpsFPSNumberPointer < averageFPSCollection.Count; fpsFPSNumberPointer++)
 			{
-				stepNumber += 1.0d;
+				stepNumber += LogConverterDatabase.LOG_PROCEED_STEP;
 				csv.WriteField(stepNumber);
 			}
 		}

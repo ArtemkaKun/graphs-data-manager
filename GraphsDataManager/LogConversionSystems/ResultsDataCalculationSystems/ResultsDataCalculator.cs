@@ -42,7 +42,7 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 
 		private List<double> CalculateAverageFPSWithStep (LogData logData)
 		{
-			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logData.LogRecords, 1.0d);
+			Queue<List<double>> timeSliceFrameTimesMatrix = ProceedLogDataWithStep(logData.LogRecords, LogConverterDatabase.LOG_PROCEED_STEP);
 			List<double> averageFPSCollection = CalculateAverageFPSForSlices(timeSliceFrameTimesMatrix);
 			return averageFPSCollection;
 		}
