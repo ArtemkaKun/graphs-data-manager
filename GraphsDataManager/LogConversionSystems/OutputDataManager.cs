@@ -9,6 +9,9 @@ namespace GraphsDataManager.LogConversionSystems
 {
 	public class OutputDataManager
 	{
+		private const string RESULTS_FILE_NAME_TEMPLATE = "convert_{0}.csv";
+		private const string DD_MM_YY_HH_MM_DATETIME_FORMAT = "dd-MM-yy_hh-mm";
+
 		private Dictionary<string, List<double>> ResultsDataCollection { get; set; }
 
 		public OutputDataManager (Dictionary<string, List<double>> resultsDataCollection)
@@ -37,7 +40,7 @@ namespace GraphsDataManager.LogConversionSystems
 
 		private void WriteResults ()
 		{
-			string pathToResultsFile = Path.Combine(Program.FolderManager.PathToDataDirectory, $"convert_{DateTime.Now.ToString("dd-MM-yy_hh-mm")}.csv");
+			string pathToResultsFile = Path.Combine(Program.FolderManager.PathToDataDirectory, string.Format(RESULTS_FILE_NAME_TEMPLATE, DateTime.Now.ToString(DD_MM_YY_HH_MM_DATETIME_FORMAT)));
 			using StreamWriter writerStream = new(pathToResultsFile, false);
 			using CsvWriter OutputCSVWriter = new(writerStream, CultureInfo.InvariantCulture);
 
