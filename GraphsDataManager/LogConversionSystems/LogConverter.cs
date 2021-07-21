@@ -19,7 +19,15 @@ namespace GraphsDataManager.LogConversionSystems
 				return;
 			}
 
-			StartConversion();
+			(string versusModeErrorMessage, bool isVersusModeActive) = TryGetVersusModeState(arguments);
+
+			if (versusModeErrorMessage != null)
+			{
+				Console.WriteLine(versusModeErrorMessage);
+				return;
+			}
+
+			StartConversion(isVersusModeActive);
 		}
 
 		private string TryGetSelectedIDs (string[] arguments)
@@ -45,9 +53,24 @@ namespace GraphsDataManager.LogConversionSystems
 			return errorMessage;
 		}
 
-		private void StartConversion ()
+		private (string, bool) TryGetVersusModeState (string[] arguments)
 		{
-			OutputResultsData(GetResultsData());
+			if (arguments.Length < 3)
+			{
+				return (null, false);
+			}
+
+			if (arguments[2] != "-vs")
+			{
+				return ($"Unknown argument {arguments[2]}", false);
+			}
+
+			return SelectedLogIDs.Length == 2 ? (null, true) : ("Invalid count of logs to compare. Should be 2", false);
+		}
+
+		private void StartConversion (bool isVersusModeActive)
+		{
+			OutputResultsData(GetResultsData(), isVersusModeActive);
 			Console.WriteLine("Conversion was done");
 		}
 
@@ -56,9 +79,9 @@ namespace GraphsDataManager.LogConversionSystems
 			return new ResultsDataCalculator(SelectedLogIDs).ProceedDataFromLogs();
 		}
 
-		private void OutputResultsData (Dictionary<string, List<double>> resultsData)
+		private void OutputResultsData (Dictionary<string, List<double>> resultsData, bool isVersusModeActive)
 		{
-			new OutputDataManager(resultsData).OutputResultsDataToFile();
+			new OutputDataManager(resultsData, isVersusModeActive).OutputResultsDataToFile();
 		}
 	}
 }

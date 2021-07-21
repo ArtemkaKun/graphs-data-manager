@@ -13,9 +13,11 @@ namespace GraphsDataManager.LogConversionSystems
 		private const string DD_MM_YY_HH_MM_DATETIME_FORMAT = "dd-MM-yy_hh-mm";
 
 		private Dictionary<string, List<double>> ResultsDataCollection { get; set; }
+		private bool IsVersusModeActive { get; set; }
 
-		public OutputDataManager (Dictionary<string, List<double>> resultsDataCollection)
+		public OutputDataManager (Dictionary<string, List<double>> resultsDataCollection, bool isVersusModeActive)
 		{
+			IsVersusModeActive = isVersusModeActive;
 			ResultsDataCollection = resultsDataCollection;
 		}
 
@@ -42,13 +44,18 @@ namespace GraphsDataManager.LogConversionSystems
 		{
 			string pathToResultsFile = Path.Combine(Program.FolderManager.PathToDataDirectory, string.Format(RESULTS_FILE_NAME_TEMPLATE, DateTime.Now.ToString(DD_MM_YY_HH_MM_DATETIME_FORMAT)));
 			using StreamWriter writerStream = new(pathToResultsFile, false);
-			using CsvWriter OutputCSVWriter = new(writerStream, CultureInfo.InvariantCulture);
+			using CsvWriter outputCsvWriter = new(writerStream, CultureInfo.InvariantCulture);
 
-			WriteFirstDataLine(ResultsDataCollection.First().Value, OutputCSVWriter);
+			WriteFirstDataLine(ResultsDataCollection.First().Value, outputCsvWriter);
 
 			foreach ((string logFileName, List<double> value) in ResultsDataCollection)
 			{
-				WriteSecondDataLine(value, OutputCSVWriter, logFileName);
+				WriteSecondDataLine(value, outputCsvWriter, logFileName);
+			}
+
+			if (IsVersusModeActive == true)
+			{
+				WriteVersusLine(CompareFirstResultsToSecond(), outputCsvWriter);
 			}
 		}
 
@@ -78,6 +85,31 @@ namespace GraphsDataManager.LogConversionSystems
 			for (int avgFPSValuePointer = 0; avgFPSValuePointer < averageFPSCollection.Count; avgFPSValuePointer++)
 			{
 				csv.WriteField(averageFPSCollection[avgFPSValuePointer]);
+			}
+		}
+
+		private List<double> CompareFirstResultsToSecond ()
+		{
+			List<double> firstDataSequence = ResultsDataCollection.First().Value;
+			List<double> secondDataSequence = ResultsDataCollection.Last().Value;
+			List<double> comparisonDataSequence = new(firstDataSequence.Count);
+
+			for (int resultDataPointer = 0; resultDataPointer < firstDataSequence.Count; resultDataPointer++)
+			{
+				comparisonDataSequence.Add(((secondDataSequence[resultDataPointer] * 100.0d) / firstDataSequence[resultDataPointer]) - 100.0d);
+			}
+
+			return comparisonDataSequence;
+		}
+
+		private void WriteVersusLine (List<double> comparisonDataSequence, CsvWriter csv)
+		{
+			csv.NextRecord();
+			InsertEmptyColumns(csv, 3);
+
+			for (int comparisonRecordPointer = 0; comparisonRecordPointer < comparisonDataSequence.Count; comparisonRecordPointer++)
+			{
+				csv.WriteField(comparisonDataSequence[comparisonRecordPointer]);
 			}
 		}
 
