@@ -60,8 +60,7 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 
 				if (sliceTime >= step)
 				{
-					timeSliceFrameTimesMatrix.Enqueue(new List<double>(frameTimesBuffer));
-					frameTimesBuffer.Clear();
+					SaveDataSlice();
 					sliceTime -= step;
 				}
 				else
@@ -77,6 +76,12 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 			}
 
 			return timeSliceFrameTimesMatrix;
+
+			void SaveDataSlice ()
+			{
+				timeSliceFrameTimesMatrix.Enqueue(new List<double>(frameTimesBuffer));
+				frameTimesBuffer.Clear();
+			}
 		}
 
 		private List<double> CalculateAverageFPSForSlices (Queue<List<double>> timeSliceFrameTimesMatrix)
@@ -85,10 +90,15 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 
 			while (timeSliceFrameTimesMatrix.Count > 0)
 			{
-				averageFPSCollection.Add(1000.0d / timeSliceFrameTimesMatrix.Dequeue().Average());
+				averageFPSCollection.Add(ResultsDataCalculatorDatabase.ONE_SECOND_IN_MILLISECONDS_FORM / GetAverageTimeBetweenFrames());
 			}
 
 			return averageFPSCollection;
+
+			double GetAverageTimeBetweenFrames ()
+			{
+				return timeSliceFrameTimesMatrix.Dequeue().Average();
+			}
 		}
 	}
 }
