@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using CsvHelper;
 
 namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 {
 	public class ResultsDataCalculator
 	{
+		private LogParser ParserTool { get; } = new();
 		private string[] SelectedLogIDs { get; set; }
 		private Dictionary<string, List<double>> ResultsDataCollection { get; set; }
 
@@ -23,15 +21,15 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 
 			for (int selectedFileIDPointer = 0; selectedFileIDPointer < SelectedLogIDs.Length; selectedFileIDPointer++)
 			{
-				ProceedLog(selectedFileIDPointer);
+				ProceedLog(SelectedLogIDs[selectedFileIDPointer]);
 			}
 
 			return ResultsDataCollection;
 		}
 
-		private void ProceedLog (int selectedFileIDPointer)
+		private void ProceedLog (string selectedIDInStringForm)
 		{
-			(string errorMessage, LogData logData) = TryGetLogData(selectedFileIDPointer);
+			(string errorMessage, LogData logData) = ParserTool.TryGetLogData(selectedIDInStringForm);
 
 			if (errorMessage != null)
 			{
@@ -40,59 +38,6 @@ namespace GraphsDataManager.LogConversionSystems.ResultsDataCalculationSystems
 			}
 
 			ResultsDataCollection.Add(logData.LogFileName, CalculateAverageFPSWithStep(logData));
-		}
-
-		private (string errorMessage, LogData logData) TryGetLogData (int selectedFileIDPointer)
-		{
-			LogData logData = null;
-			(string errorMessage, string pathToLog) = TryGetPathToLogFile(selectedFileIDPointer);
-
-			if (errorMessage == null)
-			{
-				List<LogDataRecord> logRecords = ReadLogData(pathToLog);
-				string nameOfLogFile = Path.GetFileNameWithoutExtension(pathToLog);
-
-				if (logRecords.Count == 0)
-				{
-					errorMessage = string.Format(ResultsDataCalculatorDatabase.EMPTY_LOG_MESSAGE, nameOfLogFile);
-				}
-				else
-				{
-					logData = new LogData(nameOfLogFile, logRecords);
-				}
-			}
-
-			return (errorMessage, logData);
-		}
-
-		private (string errorMessage, string pathToLog) TryGetPathToLogFile (int selectedFileIDPointer)
-		{
-			string errorMessage = null;
-			string pathToLog = null;
-			string selectedIDInStringForm = SelectedLogIDs[selectedFileIDPointer];
-
-			if (int.TryParse(selectedIDInStringForm, out int selectedID) == false)
-			{
-				errorMessage = string.Format(ResultsDataCalculatorDatabase.IS_NOT_AS_NUMBER_MESSAGE, selectedIDInStringForm);
-			}
-			else
-			{
-				pathToLog = Program.FolderManager.GetLogPathByPositionIndex(selectedID);
-
-				if (pathToLog == null)
-				{
-					errorMessage = string.Format(ResultsDataCalculatorDatabase.NO_LOG_WITH_THIS_ID_MESSAGE, selectedID);
-				}
-			}
-
-			return (errorMessage, pathToLog);
-		}
-
-		private List<LogDataRecord> ReadLogData (string pathToLog)
-		{
-			using StreamReader reader = new(pathToLog);
-			using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
-			return csv.GetRecords<LogDataRecord>().ToList();
 		}
 
 		private List<double> CalculateAverageFPSWithStep (LogData logData)
