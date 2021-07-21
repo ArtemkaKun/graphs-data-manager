@@ -12,6 +12,12 @@ namespace GraphsDataManager.LogConversionSystems
 
 		public void TryConvertLogsIntoResults (string[] arguments)
 		{
+			if (Program.FolderManager.PathToDataDirectory.CheckIfStringIsValid() == false)
+			{
+				Console.WriteLine(LogConverterDatabase.INVALID_DATA_ABOUT_DATA_FOLDER_MESSAGE);
+				return;
+			}
+
 			string errorMessage = TryGetSelectedIDs(arguments);
 
 			if (errorMessage != null)

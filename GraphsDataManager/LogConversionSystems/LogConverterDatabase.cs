@@ -10,6 +10,7 @@ namespace GraphsDataManager.LogConversionSystems
 		public const string VERSUS_COMMAND = ConsoleUIDatabase.COMMAND_ARGUMENT_PREFIX + "vs";
 		public const string UNKNOWN_ARGUMENT_MESSAGE = "Unknown argument {0}";
 		public const string INVALID_COUNT_OF_LOGS_TO_COMPARE = "Invalid count of logs to compare. Should be 2";
+		public const string INVALID_DATA_ABOUT_DATA_FOLDER_MESSAGE = "Invalide data about data folder. Provide this data first with -df command";
 		public const double LOG_PROCEED_STEP = 1.0d;
 	}
 }
