@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using GraphsDataManager.DataFolderSystems;
 using GraphsDataManager.Helpers;
 using GraphsDataManager.LogConversionSystems;
@@ -27,7 +28,13 @@ namespace GraphsDataManager.ConsoleSystems
 		public void Start ()
 		{
 			Console.WriteLine(ConsoleUIDatabase.WELCOME_MESSAGE);
+			SetConsoleTextEncoding();
 			StartUILoop();
+		}
+
+		private void SetConsoleTextEncoding ()
+		{
+			Console.OutputEncoding = Console.InputEncoding = Encoding.Unicode;
 		}
 
 		private void StartUILoop ()
